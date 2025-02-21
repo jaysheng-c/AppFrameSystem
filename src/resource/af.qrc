@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/AF">
+        <file>af.png</file>
+    </qresource>
+</RCC>
