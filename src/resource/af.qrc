@@ -2,4 +2,7 @@
     <qresource prefix="/AF">
         <file>af.png</file>
     </qresource>
+    <qresource prefix="/QSS">
+        <file>qss/dark.qss</file>
+    </qresource>
 </RCC>

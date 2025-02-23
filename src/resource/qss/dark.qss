@@ -1,0 +1,20 @@
+.AFTitleWidget {
+    background-color: rgb(60, 63, 65);
+    color: rgb(223, 225, 229);
+}
+.AFTitleWidget QPushButton {
+    background-color: rgb(60, 63, 65);
+    color: rgb(133, 135, 137);
+    border: none;
+}
+.AFTitleWidget QPushButton:hover {
+    background-color: rgb(72, 75, 77);
+    color: rgb(133, 135, 137);
+}
+.AFTitleWidget QPushButton#close:hover {
+    background-color: rgb(232, 17, 35);
+    color: rgb(255, 255, 255);
+}
+.AFTitleWidget QLabel {
+    color: rgb(223, 225, 229);
+}

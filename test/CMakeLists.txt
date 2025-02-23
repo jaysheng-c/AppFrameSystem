@@ -8,10 +8,10 @@ target_link_libraries(TestLogger
         Qt::Widgets
 )
 
-#add_executable(TestFrameLess test_frameless.cpp )
-#target_link_libraries(TestFrameLess
-#        Qt::Core
-#        Qt::Gui
-#        Qt::Widgets
-#        AFCore
-#)
+add_executable(TestFrameLess test_frameless.cpp)
+target_link_libraries(TestFrameLess
+        Qt::Core
+        Qt::Gui
+        Qt::Widgets
+        Core
+)

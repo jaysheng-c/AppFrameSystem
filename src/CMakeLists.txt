@@ -1,4 +1,3 @@
-
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
 set(QRC_SOURCE_FILE ${CMAKE_CURRENT_SOURCE_DIR}/resource/af.qrc)
