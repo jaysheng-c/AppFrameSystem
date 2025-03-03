@@ -12,6 +12,7 @@
 #define AF_ENUM_H
 
 namespace AF {
+Q_NAMESPACE
 
 enum NoneTypeFlag {
     None = 0x00,
@@ -32,6 +33,7 @@ enum BtnTypeFlag {
 
 Q_DECLARE_FLAGS(BtnType, BtnTypeFlag)
 Q_DECLARE_OPERATORS_FOR_FLAGS(BtnType)
+Q_ENUM_NS(BtnTypeFlag)
 
 enum ResizeEdgeFlag {
     NoneEdge = 0x00,
@@ -42,6 +44,7 @@ enum ResizeEdgeFlag {
 };
 Q_DECLARE_FLAGS(ResizeEdge, ResizeEdgeFlag)
 Q_DECLARE_OPERATORS_FOR_FLAGS(ResizeEdge)
+Q_ENUM_NS(ResizeEdgeFlag)
 
 enum MouseActionFlag {
     NoneAction = 0x00,
@@ -50,6 +53,7 @@ enum MouseActionFlag {
 };
 Q_DECLARE_FLAGS(MouseAction, MouseActionFlag)
 Q_DECLARE_OPERATORS_FOR_FLAGS(MouseAction)
+Q_ENUM_NS(MouseActionFlag)
 
 
 }

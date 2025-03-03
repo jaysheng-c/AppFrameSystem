@@ -11,13 +11,51 @@
 #include "af_frameless_p.h"
 #include <QMouseEvent>
 #include <QWidget>
+#include <QPropertyAnimation>
+#include <QParallelAnimationGroup>
+#include <QApplication>
+#include <QScreen>
+#include <QPushButton>
 
 #include "core/af_widget.h"
+#include "core/af_title_widget.h"
+
+namespace {
+
+class Animation {
+public:
+    QPropertyAnimation *operator()(AFWidget *parent, const QString &property, const QVariant &endValue) const
+    {
+        auto animation = new QPropertyAnimation(parent, property.toUtf8(), parent);
+        animation->setDuration(200);
+        animation->setStartValue(parent->property(property.toUtf8()));
+        animation->setEasingCurve(QEasingCurve::InOutQuad);
+        animation->setEndValue(endValue);
+        return animation;
+    }
+};
+
+}
 
 AFFramelessPrivate::AFFramelessPrivate(AFWidget *parent)
     : m_parent(parent)
 {
 
+}
+
+void AFFramelessPrivate::mouseDoubleClickEvent(QMouseEvent *event, QWidget *titleWidget)
+{
+    auto pos = event->position();
+    if (event->button() == Qt::LeftButton && titleWidget && titleWidget->geometry().contains(pos.toPoint())) {
+        switch (m_parent->windowState()) {
+            case Qt::WindowNoState:     showMaximized(); break;
+            case Qt::WindowMaximized:   showRestored(); break;
+            case Qt::WindowMinimized:
+            case Qt::WindowActive:
+            case Qt::WindowFullScreen:
+                break;
+        }
+    }
 }
 
 void AFFramelessPrivate::mousePressEvent(QMouseEvent *event, QWidget *titleWidget)
@@ -43,6 +81,15 @@ void AFFramelessPrivate::mouseMoveEvent(QMouseEvent *event)
         return;
     }
     if (m_mouseAction.action == AF::MouseMove) {
+        if (m_parent->windowState() == Qt::WindowMaximized) {
+            QRect rect(QPoint(event->pos().x() - m_originalRect.width() / 2, (event->pos().y() - 15)),
+                       QSize(m_originalRect.width(), m_originalRect.height()));
+            auto pressPos = m_mouseAction.pos + m_parent->pos();
+            m_mouseAction.pos = pressPos - rect.topLeft();
+            m_parent->setGeometry(rect);
+            m_parent->showNormal();
+            m_parent->titleWidget()->setTitleBtnType(AF::Maximize | AF::Minimize | AF::Close);
+        }
         auto pos = event->globalPosition() - m_mouseAction.pos;
         m_parent->move(pos.toPoint());
     } else {
@@ -140,6 +187,59 @@ void AFFramelessPrivate::setCursorHandle(const QPointF &pos)
     m_mouseAction.edge = edge;
 }
 
+void AFFramelessPrivate::showMinimized()
+{
+    if (m_parent->windowState() == Qt::WindowMinimized) {
+        return;
+    }
+    if (m_parent->parentWidget()) {
+        // 存在父窗口
+    } else {
+        m_originalOpacity = m_parent->windowOpacity();
+        m_originalRect = m_parent->geometry();
+        auto minRect = m_originalRect.adjusted(0, m_parent->height(), -m_parent->width(), 0);
+
+        auto group = new QParallelAnimationGroup;
+        Animation animation;
+        group->addAnimation(animation(m_parent, "geometry", minRect));
+        group->addAnimation(animation(m_parent, "windowOpacity", 0.0));
+        (void) QObject::connect(group, &QPropertyAnimation::finished, [this]() {
+            m_parent->showMinimized();
+        });
+        group->start(QAbstractAnimation::DeletionPolicy::DeleteWhenStopped);
+    }
+}
+
+void AFFramelessPrivate::showMaximized()
+{
+    auto screenGeometry = QApplication::primaryScreen()->availableGeometry();
+    m_originalRect = m_parent->geometry();
+    auto animation = Animation()(m_parent, "geometry", screenGeometry);
+    (void) QObject::connect(animation, &QPropertyAnimation::finished, [this]() {
+        m_parent->showMaximized();
+        m_parent->titleWidget()->setTitleBtnType(AF::Restore | AF::Minimize | AF::Close);
+    });
+    animation->start(QAbstractAnimation::DeletionPolicy::DeleteWhenStopped);
+}
+
+void AFFramelessPrivate::showRestored()
+{
+    if (m_parent->windowState() == Qt::WindowMaximized) {
+        auto animation = Animation()(m_parent, "geometry", m_originalRect);
+        (void) QObject::connect(animation, &QPropertyAnimation::finished, [this]() {
+            m_parent->showNormal();
+            m_parent->titleWidget()->setTitleBtnType(AF::Maximize | AF::Minimize | AF::Close);
+        });
+        animation->start(QAbstractAnimation::DeletionPolicy::DeleteWhenStopped);
+    } else {
+        auto group = new QParallelAnimationGroup;
+        Animation animation;
+        group->addAnimation(animation(m_parent, "geometry", m_originalRect));
+        group->addAnimation(animation(m_parent, "windowOpacity", m_originalOpacity));
+        group->start(QAbstractAnimation::DeletionPolicy::DeleteWhenStopped);
+    }
+}
+
 AF::ResizeEdge AFFramelessPrivate::resizeEdge(const QPointF &pos) const
 {
     int borderWidth = 5;
@@ -149,17 +249,15 @@ AF::ResizeEdge AFFramelessPrivate::resizeEdge(const QPointF &pos) const
             return AF::Top | AF::Left;
         } else if (pos.y() >= rect.bottom() - borderWidth) {
             return AF::Bottom | AF::Left;
-        } else {
-            return AF::Left;
         }
+        return AF::Left;
     } else if (pos.x() >= rect.right() - borderWidth) {
         if (pos.y() <= rect.top() + borderWidth) {
             return AF::Top | AF::Right;
         } else if (pos.y() >= rect.bottom() - borderWidth) {
             return AF::Bottom | AF::Right;
-        } else {
-            return AF::Right;
         }
+        return AF::Right;
     } else if (pos.y() <= rect.top() + borderWidth) {
         return AF::Top;
     } else if (pos.y() >= rect.bottom() - borderWidth) {

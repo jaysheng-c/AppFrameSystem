@@ -24,18 +24,20 @@ friend class AFFramelessPrivate;
 public:
     explicit AFWidget(QWidget *parent = nullptr);
 
-    AFTitleWidget *titleWidget() const { return m_titleWidget; }
-    AFStatusWidget *statusWidget() const { return m_statusWidget; }
-    QWidget *customWidget() const { return m_customWidget; }
+    [[nodiscard]] AFTitleWidget *titleWidget() const { return m_titleWidget; }
+    [[nodiscard]] AFStatusWidget *statusWidget() const { return m_statusWidget; }
+    [[nodiscard]] QWidget *customWidget() const { return m_customWidget; }
     void setTitleWidget(AFTitleWidget *widget);
     void setStatusWidget(AFStatusWidget *widget);
     void setCustomWidget(QWidget *widget);
 
 protected:
     bool eventFilter(QObject *obj, QEvent *event) override;
+    void mouseDoubleClickEvent(QMouseEvent *event) override;
     void mousePressEvent(QMouseEvent *event) override;
     void mouseMoveEvent(QMouseEvent *event) override;
     void mouseReleaseEvent(QMouseEvent *event) override;
+    void changeEvent(QEvent *event) override;
 
 public:
     void onBtnClicked(int type);

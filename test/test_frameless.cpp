@@ -33,15 +33,16 @@ int main(int argc, char *argv[])
     }
     AFWidget w;
     w.show();
-    Flag(AF::Close);
+    Flag(AF::Close | AF::Maximize);
 
 
-//    auto widget = new AFTitleWidget;
-//    widget->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Fixed);
-//    widget->setMinimumWidth(0);
-//    widget->setObjectName("AFTitleWidget2");
-//    w.titleWidget()->setCustomWidget(widget);
-//    qDebug() << w.titleWidget()->minimumSizeHint();
+    auto widget = new AFTitleWidget;
+    widget->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Fixed);
+    widget->setMinimumWidth(0);
+    widget->setObjectName("AFTitleWidget2");
+    widget->setWindowTitle("title2");
+    w.titleWidget()->setCustomWidget(widget);
+    qDebug() << w.titleWidget()->minimumSizeHint();
 
     return QApplication::exec();
 }

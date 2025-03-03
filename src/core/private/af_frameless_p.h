@@ -13,6 +13,7 @@
 
 #include "af_nocopy.h"
 #include <QPointF>
+#include <QRect>
 #include "core/global/af_enum.h"
 
 class QMouseEvent;
@@ -28,17 +29,23 @@ public:
     };
 
     explicit AFFramelessPrivate(AFWidget *parent);
+    void mouseDoubleClickEvent(QMouseEvent *event, QWidget *titleWidget);
     void mousePressEvent(QMouseEvent *event, QWidget *titleWidget);
     void mouseMoveEvent(QMouseEvent *event);
     void mouseReleaseEvent(QMouseEvent *event);
     void setCursorHandle(const QPointF &pos);
+    void showMinimized();
+    void showMaximized();
+    void showRestored();
 
 protected:
-    AF::ResizeEdge resizeEdge(const QPointF &pos) const;
+    [[nodiscard]] AF::ResizeEdge resizeEdge(const QPointF &pos) const;
 private:
     AFWidget *m_parent;
     MouseAction m_mouseAction;
 
+    QRect m_originalRect;
+    qreal m_originalOpacity = 1.0;
 };
 
 

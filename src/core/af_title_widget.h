@@ -40,6 +40,7 @@ public:
     // 标题栏按键
     QPushButton *button(int btnType) const;
     QPushButton *addButton(const QString &text, int btnType);
+    void setTitleBtnType(int type) const;
 protected:
     void resizeEvent(QResizeEvent *event) override;
     void paintEvent(QPaintEvent *event) override;

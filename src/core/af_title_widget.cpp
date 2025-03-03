@@ -61,15 +61,17 @@ AFTitleWidget::AFTitleWidget(QWidget *parent)
     childLayout->setSpacing(0);
     childLayout->setContentsMargins({});
 
-    QList<std::tuple<QString, QString, QString, int>> btnPair {
-        {"minimize", "—", "最小化", AF::Minimize},
-        {"maximize", "口", "最大化", AF::Maximize},
-        {"close", "X", "关闭", AF::Close}
+    QList<std::tuple<QString, QString, QString, int, bool>> btnPair {
+        {"minimize", "—", "最小化", AF::Minimize, true},
+        {"maximize", "口", "最大化", AF::Maximize, true},
+        {"restore", "口", "最大化", AF::Restore, false},
+        {"close", "X", "关闭", AF::Close, true},
     };
-    for (const auto & [objName, btnText, tips, type] : btnPair) {
+    for (const auto & [objName, btnText, tips, type, visible] : btnPair) {
         auto btn = this->addButton(btnText, type);
         btn->setObjectName(objName);
         btn->setToolTip(tips);
+        btn->setVisible(visible);
     }
     m_buttons.last()->setObjectName("close");
 
@@ -78,6 +80,7 @@ AFTitleWidget::AFTitleWidget(QWidget *parent)
 
 AFTitleWidget::~AFTitleWidget()
 {
+    qDebug() << Q_FUNC_INFO;
 }
 
 QWidget *AFTitleWidget::customWidget() const
@@ -125,6 +128,17 @@ QPushButton *AFTitleWidget::addButton(const QString &text, int btnType)
     }
     btn->setText(text);
     return btn;
+}
+
+void AFTitleWidget::setTitleBtnType(int type) const
+{
+    auto btnType = AF::BtnType(type);
+    if (auto btn = button(AF::Close)) btn->setVisible(btnType.testFlag(AF::Close));
+    if (auto btn = button(AF::Minimize)) btn->setVisible(btnType.testFlag(AF::Minimize));
+    if (auto btn = button(AF::Maximize)) btn->setVisible(btnType.testFlag(AF::Maximize));
+    if (auto btn = button(AF::Restore)) btn->setVisible(btnType.testFlag(AF::Restore));
+    if (auto btn = button(AF::FullScreen)) btn->setVisible(btnType.testFlag(AF::FullScreen));
+    if (auto btn = button(AF::UserType)) btn->setVisible(btnType.testFlag(AF::UserType));
 }
 
 void AFTitleWidget::resizeEvent(QResizeEvent *event)
