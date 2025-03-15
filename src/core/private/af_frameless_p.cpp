@@ -240,6 +240,20 @@ void AFFramelessPrivate::showRestored()
     }
 }
 
+void AFFramelessPrivate::close()
+{
+    auto targetRect = m_parent->geometry();
+    targetRect = targetRect.adjusted(0, 0, 0, -m_parent->height());
+    auto group = new QParallelAnimationGroup;
+    Animation animation;
+    group->addAnimation(animation(m_parent, "geometry", targetRect));
+    group->addAnimation(animation(m_parent, "windowOpacity", 0.0));
+    (void) QObject::connect(group, &QPropertyAnimation::finished, [this]() {
+        m_parent->close();
+    });
+    group->start(QAbstractAnimation::DeletionPolicy::DeleteWhenStopped);
+}
+
 AF::ResizeEdge AFFramelessPrivate::resizeEdge(const QPointF &pos) const
 {
     int borderWidth = 5;

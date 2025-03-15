@@ -37,6 +37,7 @@ public:
     void showMinimized();
     void showMaximized();
     void showRestored();
+    void close();
 
 protected:
     [[nodiscard]] AF::ResizeEdge resizeEdge(const QPointF &pos) const;

@@ -141,7 +141,7 @@ void AFWidget::changeEvent(QEvent *event)
 void AFWidget::onBtnClicked(int type)
 {
     switch (type) {
-        case AF::Close:     this->close(); break;
+        case AF::Close:     m_d->close(); break;
         case AF::Minimize:  m_d->showMinimized(); break;
         case AF::Maximize:  m_d->showMaximized(); break;
         case AF::Restore:   m_d->showRestored(); break;
